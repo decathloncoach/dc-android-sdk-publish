@@ -6,9 +6,14 @@
 - Wup Digital Maven Publish Plugin 3.6.1
 - Dokka Plugin 0.9.17
 
+**Gradle Wrapper 4.4+ has deprecated configure on demand feature**
+
+- issue: https://github.com/gradle/gradle/issues/2868
+- disable in studio: https://raw.githubusercontent.com/decathloncoach/dc-android-sdk-publish/master/configure-on-demand.png
+
 ## Steps to add
 
-1. Update your `/gradle/wrapper/gradle-wrapper.properties`:
+1. Update your `/gradle/wrapper/gradle-wrapper.properties`
 
 ```text
 distributionUrl=https\://services.gradle.org/distributions/gradle-4.8-all.zip
