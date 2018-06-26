@@ -1,0 +1,34 @@
+apply plugin: 'digital.wup.android-maven-publish'
+apply plugin: 'org.jetbrains.dokka'
+
+dokka {
+    outputFormat = 'html'
+    outputDirectory = "$buildDir/javadoc"
+}
+
+task dokkaJar(type: Jar) {
+    classifier = 'javadoc'
+    from dokka
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    duplicatesStrategy = "exclude"
+    from android.sourceSets.main.java.source
+}
+
+publishing {
+    publications {
+        mavenAar(MavenPublication) {
+            from components.android
+
+            artifact sourcesJar
+            artifact dokkaJar
+
+            groupId config.build.groupId
+            artifactId config.build.artifactId
+            version config.build.name
+        }
+    }
+}
+// find the aar built in your local maven repository after calling this task -> ~/.m2
