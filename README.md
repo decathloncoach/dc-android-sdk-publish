@@ -19,17 +19,12 @@
 distributionUrl=https\://services.gradle.org/distributions/gradle-4.8-all.zip
 ```
 
-2. Add to `/build.gradle` 
+2. Add to root `/build.gradle` 
 
 ```groovy
 buildscript {
     apply from: "gradle/version.gradle"
-    //...
-    dependencies {
-        //...
-        classpath plugin.maven_publish
-        classpath plugin.dokka
-    }
+    //before everything
 }
 ```
 
@@ -38,21 +33,11 @@ buildscript {
 ```groovy
 ext.config = [
         build: [
-                code: 'VERSION_CODE',
-                name: 'VERSION_NAME',
-                groupId: 'PACKAGE',
-                artifactId: 'LIBRARY'
+                code: 'VERSION_CODE', // int
+                name: 'VERSION_NAME', // string
+                groupId: 'PACKAGE',   // string
+                artifactId: 'LIBRARY' // string
         ]
-]
-
-ext.versions = [
-        maven_publish: "3.6.1",
-        dokka: "0.9.17",
-]
-
-ext.plugin = [
-        maven_publish: "digital.wup:android-maven-publish:$versions.maven_publish",
-        dokka: "org.jetbrains.dokka:dokka-gradle-plugin:$versions.dokka"
 ]
 ```
 
@@ -64,5 +49,23 @@ apply from: 'https://raw.githubusercontent.com/decathloncoach/dc-android-sdk-pub
 
 ## How to use
 
-1. run `gradlew clean build publishToMavenLocal`
-2. go to `~/.m2` and publish artifacts to server
+### Preconfiguration
+
+Add to project `local.properties` 
+
+* m2home=%PATH_TO_M2% `//example:  m2home=~/.m2`
+* awsProfile=%AWS_PROFILE% `//example:  awsProfile=myAwsProfile`
+
+It could be empty or missing - then default values will be used.
+
+### Deploy 
+
+`gradlew clean awsDeploy`
+
+### Remove from remote repo
+
+`gradlew awsRemove`
+
+### Get commands to deploy manually
+
+`gradlew awsPrintCommands`
