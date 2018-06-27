@@ -32,3 +32,136 @@ publishing {
     }
 }
 // find the aar built in your local maven repository after calling this task -> ~/.m2
+
+task awsPrintCommands {
+    def publish = publishCommand()
+    def remove = removeCommand()
+    doLast {
+        println('                                        ')
+        println('           AWS COMMANDS TO S3           ')
+        println('                                        ')
+        println('                 Deploy                 ')
+        println(publish)
+        println('')
+        println('                 Remove                 ')
+        println(remove)
+        println('                                        ')
+    }
+}
+
+task awsDeploy {
+    dependsOn assemble
+    dependsOn publishToMavenLocal
+
+    def command = publishCommand()
+    doLast {
+        checkVersionOrThrow(config.build)
+        executeCommandToStandardOutput(command)
+    }
+}
+
+task awsRemove {
+    def command = removeCommand()
+    doLast {
+        executeCommandToStandardOutput(command)
+    }
+}
+
+private def executeCommandToStandardOutput(command) {
+    def commandOutput = new ByteArrayOutputStream()
+    exec {
+        commandLine command.split(' ')
+        standardOutput = commandOutput
+    }
+
+    return commandOutput.toString().trim()
+}
+
+private def removeCommand() {
+    def libraryPath = libraryPath(config.build)
+    def remotePath = remoteRepositoryPath() + libraryPath
+
+    def profileOption = profileOption()
+
+    return escapeSpaces("aws s3 rm ${remotePath} ${profileOption} --recursive")
+}
+
+private def publishCommand() {
+    def libraryPath = libraryPath(config.build)
+
+    def localPath = localRepositoryPath() + libraryPath
+    def remotePath = remoteRepositoryPath() + libraryPath
+
+    def profileOption = profileOption()
+
+    return escapeSpaces("aws s3 cp ${localPath} ${remotePath} ${profileOption} --recursive")
+}
+
+private def profileOption() {
+    def (profileDefined, profile) = extractLocalProperty("awsProfile")
+    return profileDefined ? "--profile ${profile}" : ""
+}
+
+private static def escapeSpaces(source) {
+    def temp = source
+    while (temp != null && temp.contains('  ')) {
+        temp = temp.replace('  ', ' ')
+    }
+    return temp
+}
+
+private static def checkVersionOrThrow(build) {
+    def libraryPath = libraryPath(build)
+    if (libraryPath.contains('SNAPSHOT')) {
+        throw new IllegalArgumentException("SNAPSHOT not allowed to publish! Check your version ${build.name}")
+    }
+}
+
+private static def remoteRepositoryPath() {
+    return "s3://dc-gradle-repo/"
+}
+
+private static def libraryPath(build) {
+    return "${build.groupId.replace('.', '/')}/${build.artifactId}/${build.name}"
+}
+
+private def localRepositoryPath() {
+    def defined, home
+
+    (defined, home) = extractLocalProperty("m2home")
+    if (defined) return "${home}/repository/"
+
+    (defined, home) = extractSystemProperty("M2")
+    if (defined) return "${home}/repository/"
+
+    (defined, home) = extractSystemProperty("M2_HOME")
+    if (defined) return "${home}/repository/"
+
+    (defined, home) = extractSystemProperty("HOME")
+    if (defined) return "${home}/.m2/repository/"
+
+    return '~/.m2/repository/'
+}
+
+private def extractSystemProperty(String name) {
+    def prop = System.getenv(name)
+    def propDefined = prop != null && !prop.isEmpty()
+
+    return new Tuple2(propDefined, propDefined ? prop : null)
+}
+
+private def extractLocalProperty(String name) {
+    def propDefined = false
+    def prop = ""
+
+    def file = project.rootProject.file('local.properties')
+    if (file.exists()) {
+        def properties = new Properties()
+        properties.load(file.newDataInputStream())
+
+        prop = properties.getProperty(name)
+        propDefined = prop != null && !prop.isEmpty()
+    }
+
+    return new Tuple2(propDefined, propDefined ? prop : null)
+}
