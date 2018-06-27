@@ -23,8 +23,14 @@ distributionUrl=https\://services.gradle.org/distributions/gradle-4.8-all.zip
 
 ```groovy
 buildscript {
-    apply from: "gradle/version.gradle"
-    //before everything
+    apply from: 'gradle/version.gradle' //publish constants
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'digital.wup:android-maven-publish:3.6.1'
+        classpath 'org.jetbrains.dokka:dokka-gradle-plugin:0.9.17'
+    }
 }
 ```
 
