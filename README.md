@@ -10,17 +10,16 @@
 
 ### Advanced configuration
 
-`m2home=%PATH_TO_M2% //example:  m2home=~/.m2`
+`m2home=`%PATH_TO_M2% 
 
-m2home is used when your local m2 repository has custom location. 
+* use it when your local maven repository has custom location 
+* by default script will search `~/.m2` directory
+* Example: `m2home=/Users/developer/.m2`
 
-By default script will search `~/.m2` directory
+`awsProfile=`%AWS_PROFILE% 
 
-`awsProfile=%AWS_PROFILE% //example:  awsProfile=myAwsProfile`
-
-awsProfile is used when you have credentials to your private repository. Such profile will be automatically used by the script.
-
-By default no profile will be used. 
+* use it when you have private repository with credentials
+* Example: `awsProfile=developerAwsProfile`
 
 ## Requirements
 
