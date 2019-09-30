@@ -8,7 +8,7 @@
 
 `awsDeploy` based on `build` and `publishToMavenLocal`.
 <br>
-Do not use these commands manually. Just deploy your SKD by awsDeploy. 
+Do not use these commands manually. Just deploy your SDK by awsDeploy. 
 
 ### Advanced configuration
 
